@@ -1,9 +1,5 @@
-from collections import defaultdict
 import json
-import sys
-# import xml.etree.ElementTree as ET
 import lxml.etree as ET
-from html.parser import HTMLParser
 
 
 def parse_xml(file_name, json_path):
@@ -48,7 +44,6 @@ def parse_xml(file_name, json_path):
                                           'title': publication_title,
                                           'year': publication_year,
                                           'type': publication_type}
-            # print(json_dict)
             has_start = False
             # with open(json_path, 'w') as fp:
             #     json.dump(json_dict, fp)
