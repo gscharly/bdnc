@@ -15,16 +15,15 @@ def parse_xml(file_name, json_path):
     # Traverse the XML
     for event, element in ET.iterparse(file_name, events=events, recover=True):
         # print(event, element.tag, element.text)
-        # print(has_start)
         # Article node: initialize variables
         if event == 'start' and element.tag in ['article', 'improceedings', 'incollection']:
             has_start = True
-            # json_dict = dict()
+            # Each article node has an unique attribute key
+            publication_key = element.attrib['key']
             authors = list()
             publication_year = ''
             publication_type = str(element.tag)
             publication_title = ''
-            publication_url = ''
         # Author node
         elif event == 'start' and element.tag == 'author' and has_start:
             authors.append(element.text)
@@ -34,19 +33,14 @@ def parse_xml(file_name, json_path):
         # Year node
         elif event == 'start' and element.tag == 'year' and has_start:
             publication_year = element.text
-        # URL node
-        elif event == 'start' and element.tag == 'url' and has_start:
-            publication_url = element.text
         # End article node: save information. This will never execute before initializing all of the variables
         elif has_start and event == 'end' and element.tag in ['article', 'improceedings', 'incollection']\
                 and len(authors) > 0:
-            json_dict[publication_url] = {'authors': authors,
+            json_dict[publication_key] = {'authors': authors,
                                           'title': publication_title,
                                           'year': publication_year,
                                           'type': publication_type}
             has_start = False
-            # with open(json_path, 'w') as fp:
-            #     json.dump(json_dict, fp)
         else:
             # Remove element (otherwise there will be memory issues due to file size)
             element.clear()
