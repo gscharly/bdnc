@@ -2,7 +2,7 @@ import json
 import lxml.etree as ET
 
 
-def parse_xml(file_name, json_path):
+def parse_xml(file_name):
     """
     Reads and process xml using lxml. The result is saved in json_path
     :param file_name:
@@ -13,8 +13,8 @@ def parse_xml(file_name, json_path):
     has_start = False
     json_dict = dict()
     # Traverse the XML
-    for event, element in ET.iterparse(file_name, events=events, recover=True):
-        # print(event, element.tag, element.text)
+    for event, element in ET.iterparse(file_name, events=events, encoding="utf-8", load_dtd=True, recover=True):
+        print(event, element.tag, element.text)
         # Article node: initialize variables
         if event == 'start' and element.tag in ['article', 'improceedings', 'incollection']:
             has_start = True
@@ -41,20 +41,22 @@ def parse_xml(file_name, json_path):
                                           'year': publication_year,
                                           'type': publication_type}
             has_start = False
+            element.clear()
         else:
             # Remove element (otherwise there will be memory issues due to file size)
             element.clear()
             continue
-    # Write to json
-    with open(json_path, 'w') as fp:
-        json.dump(json_dict, fp)
+
+    return json_dict
 
 
 if __name__ == "__main__":
     json_path = 'dblp.json'
-    xml_path = 'dblp.xml'
-    parse_xml(xml_path, json_path)
-
+    xml_path = 'dblp_final.xml'
+    json_dict = parse_xml(xml_path)
+    # Write to json
+    with open(json_path, 'w', encoding='utf-8') as fp:
+        json.dump(json_dict, fp, ensure_ascii=False)
 
 
 
