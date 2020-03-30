@@ -34,8 +34,7 @@ def parse_xml(file_name):
         elif event == 'start' and element.tag == 'year' and has_start:
             publication_year = element.text
         # End article node: save information. This will never execute before initializing all of the variables
-        elif has_start and event == 'end' and element.tag in ['article', 'improceedings', 'incollection']\
-                and len(authors) > 0:
+        elif has_start and event == 'end' and element.tag in ['article', 'improceedings', 'incollection']:
             json_dict[publication_key] = {'authors': authors,
                                           'title': publication_title,
                                           'year': publication_year,
