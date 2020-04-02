@@ -19,7 +19,7 @@ with open("dblp.json", encoding='utf-8') as json_data:
 print(type(data))
 
 for k, v in data.items():
-    col.insert_one({k:v})
+    col.insert_one(v)
 
 # col.insert_one(data)
 

@@ -1,5 +1,7 @@
 import json
 import lxml.etree as ET
+import unidecode
+from tqdm import tqdm
 
 
 def parse_xml(file_name):
@@ -13,8 +15,8 @@ def parse_xml(file_name):
     has_start = False
     json_dict = dict()
     # Traverse the XML
-    for event, element in ET.iterparse(file_name, events=events, encoding="utf-8", load_dtd=True, recover=True):
-        print(event, element.tag, element.text)
+    for event, element in tqdm(ET.iterparse(file_name, events=events, encoding="utf-8", load_dtd=True, recover=True)):
+        # print(event, element.tag, element.text)
         # Article node: initialize variables
         if event == 'start' and element.tag in ['article', 'improceedings', 'incollection']:
             has_start = True
@@ -26,7 +28,8 @@ def parse_xml(file_name):
             publication_title = ''
         # Author node
         elif event == 'start' and element.tag == 'author' and has_start:
-            authors.append(element.text)
+            no_accent = lambda x: unidecode.unidecode(x) if x is not None else x
+            authors.append(no_accent(element.text))
         # Title node
         elif event == 'start' and element.tag == 'title' and has_start:
             publication_title = element.text
@@ -35,10 +38,12 @@ def parse_xml(file_name):
             publication_year = element.text
         # End article node: save information. This will never execute before initializing all of the variables
         elif has_start and event == 'end' and element.tag in ['article', 'improceedings', 'incollection']:
-            json_dict[publication_key] = {'authors': authors,
-                                          'title': publication_title,
-                                          'year': publication_year,
-                                          'type': publication_type}
+            json_dict[publication_key] = {
+                '_id': publication_key,
+                'authors': authors,
+                'title': publication_title,
+                'year': publication_year,
+                'type': publication_type}
             has_start = False
             element.clear()
         else:

@@ -2,3 +2,4 @@
 *.xml
 *.json
 *.gz
+.ipynb_checkpoints
