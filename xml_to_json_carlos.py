@@ -1,7 +1,8 @@
 import json
 import lxml.etree as ET
 import unidecode
-from tqdm import tqdm
+
+INCLUDE_ARTICLES = ['article', 'inproceedings', 'incollection']
 
 
 def parse_xml(file_name):
@@ -15,10 +16,10 @@ def parse_xml(file_name):
     has_start = False
     json_dict = dict()
     # Traverse the XML
-    for event, element in tqdm(ET.iterparse(file_name, events=events, encoding="utf-8", load_dtd=True, recover=True)):
-        # print(event, element.tag, element.text)
+    for event, element in ET.iterparse(file_name, events=events, encoding="utf-8", load_dtd=True, recover=True):
+        print(event, element.tag, element.text)
         # Article node: initialize variables
-        if event == 'start' and element.tag in ['article', 'improceedings', 'incollection']:
+        if event == 'start' and element.tag in INCLUDE_ARTICLES:
             has_start = True
             # Each article node has an unique attribute key
             publication_key = element.attrib['key']
@@ -37,7 +38,7 @@ def parse_xml(file_name):
         elif event == 'start' and element.tag == 'year' and has_start:
             publication_year = element.text
         # End article node: save information. This will never execute before initializing all of the variables
-        elif has_start and event == 'end' and element.tag in ['article', 'improceedings', 'incollection']:
+        elif has_start and event == 'end' and element.tag in INCLUDE_ARTICLES:
             json_dict[publication_key] = {
                 '_id': publication_key,
                 'authors': authors,
