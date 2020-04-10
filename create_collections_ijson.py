@@ -16,13 +16,25 @@ def objects(file):
                 yield key, builder.value
 
 
-# Conexión al servidor local de mongodb
+# Connect to Mongo
 conex = pymongo.MongoClient()
-conex.list_database_names()
-db = conex.prueba_practica
+
+print(conex.list_database_names())
+
+# Database practica (already created)
+db = conex.practica
+print(db.list_collection_names())
 
 # Cargamos el fichero json de documentos
 for key, value in tqdm(objects(open('dblp.json', 'rb'))):
-    db.pruebaparse.insert_one(value)
+    db.documentos.insert_one(value)
 
+print(db.list_collection_names())
 
+# Creación de la colección de autores
+pipeline_authors_collection = [{"$unwind": "$authors"},
+                               {"$group": {"_id": "$authors", "publications": {"$push": "$_id"}}},
+                               {'$out': "autores"}]
+db.documentos.aggregate(pipeline_authors_collection,  allowDiskUse=True)
+
+print(db.list_collection_names())
