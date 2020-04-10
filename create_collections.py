@@ -25,6 +25,6 @@ print(db.list_collection_names())
 pipeline_authors_collection = [{"$unwind": "$authors"},
                                {"$group": {"_id": "$authors", "publications": {"$push": "$_id"}}},
                                {'$out': "autores"}]
-db.documentos.aggregate(pipeline_authors_collection,  allowDiskUse = True)
+db.documentos.aggregate(pipeline_authors_collection,  allowDiskUse=True)
 
 print(db.list_collection_names())
